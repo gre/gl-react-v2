@@ -18,6 +18,14 @@ Both `gl-react-dom` and `gl-react-native` depends on `gl-react` and exposes the 
 
 [![](https://github.com/ProjectSeptemberInc/gl-react/raw/master/docs/examples/blur.gif)](http://projectseptemberinc.github.io/gl-react-dom/Examples/Blur/)
 
+## Playground
+
+you want to experiment / show us some code?
+
+you can fork this JSFiddle:
+
+https://jsfiddle.net/greweb/bztz8494/
+
 ## Examples
 
 [Open Examples page](http://projectseptemberinc.github.io/gl-react-dom/) / [Read the code](https://github.com/ProjectSeptemberInc/gl-react-dom/tree/master/Examples).
