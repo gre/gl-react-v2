@@ -1,5 +1,4 @@
 const invariant = require("invariant");
-const defer = require("promise-defer");
 
 const INLINE_NAME = "<inline>";
 
@@ -13,7 +12,17 @@ const shadersReferenceCounters = {}; // reference count the shaders created with
 const surfaceInlines = {};
 const previousSurfaceInlines = {};
 
-let implDefer = defer();
+function makeDeferred() {
+  var defer = {};
+  var p = new Promise(function(resolve, reject) {
+    defer.resolve = resolve;
+    defer.reject = reject;
+  });
+  defer.promise = p;
+  return defer;
+}
+
+let implDefer = makeDeferred();
 const implementation = implDefer.promise;
 
 const add = shader => {
