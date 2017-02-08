@@ -179,7 +179,7 @@ module.exports = (
           console.warn(
 `gl-react: To avoid potential remounting, please define a \`key\` prop on your contents:
 
-${withoutKeys.map(c => "<"+(c.type.name || c.type.displayName || "unknown")+" key=??? ... />").join("\n")}
+${withoutKeys.map(c => "<"+(c && c.type && (c.type.name || c.type.displayName || "unknown") || c)+" key=??? ... />").join("\n")}
 `);
         }
       }
