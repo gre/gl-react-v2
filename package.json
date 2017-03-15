@@ -11,7 +11,7 @@
     "react": "global:React"
   },
   "peerDependencies": {
-    "react": "^0.14.5 || ^15.0.0"
+    "react": "*"
   },
   "dependencies": {
     "invariant": "2.2.1"
