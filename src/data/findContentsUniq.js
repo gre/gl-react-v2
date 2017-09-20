@@ -1,8 +1,8 @@
 // recursively find all contents but without duplicates by comparing VDOM reference
-function findContentsUniq (data) {
+function findContentsUniq(data) {
   const vdoms = [];
   const contents = [];
-  function rec (data) {
+  function rec(data) {
     data.contents.forEach(content => {
       if (vdoms.indexOf(content.vdom) === -1) {
         vdoms.push(content.vdom);

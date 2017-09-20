@@ -3,28 +3,28 @@ const isAnimated = require("../isAnimated");
 
 // infer the uniform value type and validate it (throw error if invalid)
 
-function duckTypeUniformValue (obj) {
+function duckTypeUniformValue(obj) {
   let typ = typeof obj;
 
-  if (typ==="number") {
-    if(isNaN(obj) || !isFinite(obj)) throw new Error("invalid number: '"+obj+"'");
+  if (typ === "number") {
+    if (isNaN(obj) || !isFinite(obj))
+      throw new Error("invalid number: '" + obj + "'");
     return typ;
   }
 
-  if (typ==="boolean") {
+  if (typ === "boolean") {
     return typ;
   }
 
-  if (typ==="string") {
+  if (typ === "string") {
     return typ;
   }
 
-  if (typ==="undefined") {
+  if (typ === "undefined") {
     return null;
   }
 
   if (typ === "object") {
-
     if (!obj) {
       return null;
     }
@@ -44,39 +44,43 @@ function duckTypeUniformValue (obj) {
       let foundVDOM = false;
       let foundNumber = false;
       let foundBoolean = false;
-      for (let i=0; i<length; i++) {
+      for (let i = 0; i < length; i++) {
         const val = obj[i];
         const t = typeof val;
         switch (t) {
-        case "object":
-          if (val && isAnimated(val))
-            foundAnimated = true;
-          else if (val && React.isValidElement(val))
-            foundVDOM = true;
-          else if (val instanceof Array)
-            return duckTypeUniformValue(val);
-          else
-            throw new Error("at index "+i+", Unrecognized object: '"+val+"'");
-          break;
+          case "object":
+            if (val && isAnimated(val)) foundAnimated = true;
+            else if (val && React.isValidElement(val)) foundVDOM = true;
+            else if (val instanceof Array) return duckTypeUniformValue(val);
+            else
+              throw new Error(
+                "at index " + i + ", Unrecognized object: '" + val + "'"
+              );
+            break;
 
-        case "number":
-          if(isNaN(val) || !isFinite(val))
-            throw new Error("at index "+i+", invalid number: '"+val+"'");
-          foundNumber = true;
-          break;
+          case "number":
+            if (isNaN(val) || !isFinite(val))
+              throw new Error(
+                "at index " + i + ", invalid number: '" + val + "'"
+              );
+            foundNumber = true;
+            break;
 
-        case "boolean":
-          foundBoolean = true;
-          break;
+          case "boolean":
+            foundBoolean = true;
+            break;
 
-        default:
-          throw new Error("at index "+i+", Unrecognized object: "+val);
+          default:
+            throw new Error("at index " + i + ", Unrecognized object: " + val);
         }
       }
 
-      const foundNumberOrBooleanOrAnimated = foundNumber || foundBoolean || foundAnimated;
+      const foundNumberOrBooleanOrAnimated =
+        foundNumber || foundBoolean || foundAnimated;
       if (foundNumberOrBooleanOrAnimated && foundVDOM) {
-        throw new Error("Invalid array. Found both VDOM value and numbers/booleans/animated");
+        throw new Error(
+          "Invalid array. Found both VDOM value and numbers/booleans/animated"
+        );
       }
 
       if (foundVDOM) {
@@ -102,7 +106,7 @@ function duckTypeUniformValue (obj) {
     }
   }
 
-  throw new Error("Unrecognized object: "+obj);
+  throw new Error("Unrecognized object: " + obj);
 }
 
 module.exports = duckTypeUniformValue;

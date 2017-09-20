@@ -27,18 +27,16 @@ const implementation = implDefer.promise;
 
 const add = shader => {
   const existingId = findShaderId(shaders, shader);
-  const id = existingId || _uid ++;
+  const id = existingId || _uid++;
   let promise;
   if (!existingId) {
     names[id] = shader.name;
     shaders[id] = shader;
     shadersReferenceCounters[id] = 0;
-    shadersCompileResponses[id] = promise =
-    implementation
+    shadersCompileResponses[id] = promise = implementation
       .then(impl => impl.add(id, shader))
-      .then(result => shadersCompileResults[id] = result);
-  }
-  else {
+      .then(result => (shadersCompileResults[id] = result));
+  } else {
     promise = shadersCompileResponses[id];
   }
   return { id, promise };
@@ -54,8 +52,8 @@ const remove = id => {
 
 const getShadersToRemove = () =>
   Object.keys(shadersReferenceCounters)
-  .filter(id => shadersReferenceCounters[id] <= 0)
-  .map(id => parseInt(id, 10));
+    .filter(id => shadersReferenceCounters[id] <= 0)
+    .map(id => parseInt(id, 10));
 
 let scheduled;
 const gcNow = () => {
@@ -82,40 +80,39 @@ const findShaderId = (shaders, shader) => {
 };
 
 const logError = shader => error =>
-  console.error( //eslint-disable-line no-console
+  console.error(
+    //eslint-disable-line no-console
     "Shader '" + shader.name + "' failed to compile:\n" + error
   );
 
 const Shaders = {
-
-  _onSurfaceWillMount (surfaceId) {
+  _onSurfaceWillMount(surfaceId) {
     surfaceInlines[surfaceId] = [];
   },
 
-  _onSurfaceWillUnmount (surfaceId) {
-    surfaceInlines[surfaceId].forEach(id =>
-      shadersReferenceCounters[id]--);
+  _onSurfaceWillUnmount(surfaceId) {
+    surfaceInlines[surfaceId].forEach(id => shadersReferenceCounters[id]--);
     delete surfaceInlines[surfaceId];
     delete previousSurfaceInlines[surfaceId];
     scheduleGC();
   },
 
-  _beforeSurfaceBuild (surfaceId) {
+  _beforeSurfaceBuild(surfaceId) {
     previousSurfaceInlines[surfaceId] = surfaceInlines[surfaceId];
     surfaceInlines[surfaceId] = [];
   },
 
   // Resolve the shader field of GL.Node.
   // it can be an id (created with Shaders.create) or an inline object.
-  _resolve (idOrObject, surfaceId, compileHandler) {
+  _resolve(idOrObject, surfaceId, compileHandler) {
     if (typeof idOrObject === "number") return idOrObject;
     const { id, promise } = add({ name: INLINE_NAME, ...idOrObject });
     if (compileHandler) {
       promise.then(
         result => compileHandler(null, result),
-        error => compileHandler(error));
-    }
-    else {
+        error => compileHandler(error)
+      );
+    } else {
       promise.catch(logError(Shaders.get(id)));
     }
     const inlines = surfaceInlines[surfaceId];
@@ -123,11 +120,11 @@ const Shaders = {
     return id;
   },
 
-  _afterSurfaceBuild (surfaceId) {
-    previousSurfaceInlines[surfaceId].forEach(id =>
-      shadersReferenceCounters[id]--);
-    surfaceInlines[surfaceId].forEach(id =>
-      shadersReferenceCounters[id]++);
+  _afterSurfaceBuild(surfaceId) {
+    previousSurfaceInlines[surfaceId].forEach(
+      id => shadersReferenceCounters[id]--
+    );
+    surfaceInlines[surfaceId].forEach(id => shadersReferenceCounters[id]++);
     delete previousSurfaceInlines[surfaceId];
     scheduleGC();
   },
@@ -135,61 +132,66 @@ const Shaders = {
   //~~~ Exposed methods ~~~ //
 
   // Create shaders statically
-  create (obj, onAllCompile) {
+  create(obj, onAllCompile) {
     invariant(typeof obj === "object", "config must be an object");
     const result = {};
-    const compileErrors = {}, compileResults = {};
-    Promise.all(Object.keys(obj).map(key => {
-      const shader = obj[key];
-      invariant(typeof shader === "object" && typeof shader.frag === "string",
-      "invalid shader given to Shaders.create(). A valid shader is a { frag: String }");
-      const {id, promise} = add({ name: key, ...shader });
-      result[key] = id;
-      shadersReferenceCounters[id] ++;
-      return promise.then(
-        result => compileResults[key] = result,
-        error => compileErrors[key] = error
-      );
-    }))
-    .then(() => {
+    const compileErrors = {},
+      compileResults = {};
+    Promise.all(
+      Object.keys(obj).map(key => {
+        const shader = obj[key];
+        invariant(
+          typeof shader === "object" && typeof shader.frag === "string",
+          "invalid shader given to Shaders.create(). A valid shader is a { frag: String }"
+        );
+        const { id, promise } = add({ name: key, ...shader });
+        result[key] = id;
+        shadersReferenceCounters[id]++;
+        return promise.then(
+          result => (compileResults[key] = result),
+          error => (compileErrors[key] = error)
+        );
+      })
+    ).then(() => {
       if (onAllCompile) {
         onAllCompile(
           Object.keys(compileErrors).length ? compileErrors : null,
-          compileResults);
-      }
-      else {
+          compileResults
+        );
+      } else {
         Object.keys(compileErrors).forEach(key =>
-          logError(Shaders.get(result[key]))(compileErrors[key]));
+          logError(Shaders.get(result[key]))(compileErrors[key])
+        );
       }
     });
     return result;
   },
 
   // Get the shader object by id.
-  get (id) {
+  get(id) {
     return Object.freeze(shaders[id]);
   },
 
   // Synchronously retrieve the successful compilation response.
   // returns or ShaderResult object or null if there were a failure or not ready
-  getCompilationResult (id) {
+  getCompilationResult(id) {
     return shadersCompileResults[id] || null;
   },
 
   // Get the promise of the compilation state. Allows you to wait for compilation
   // and also map on errors.
   // Returns null only if you never have created this shader.
-  getCompilationPromise (id) {
+  getCompilationPromise(id) {
     return shadersCompileResponses[id] || null;
   },
 
   // List all shader ids that exists at the moment.
-  list () {
+  list() {
     return Object.keys(shaders);
   },
 
   // Check if a shader exists
-  exists (id) {
+  exists(id) {
     return id in shaders;
   },
 

@@ -1,4 +1,4 @@
 module.exports = {
   decorateVDOMContent: vdom => vdom,
-  decorateUniformValue: (value/* name, shader */) => value,
+  decorateUniformValue: (value /* name, shader */) => value
 };

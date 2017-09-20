@@ -1,8 +1,5 @@
 const React = require("react");
-const {
-  Component,
-  PropTypes
-} = React;
+const { Component, PropTypes } = React;
 const invariant = require("invariant");
 const { fill, resolve, build } = require("./data");
 const Shaders = require("./Shaders");
@@ -15,8 +12,9 @@ const runtime = require("./runtime");
 
 let _glSurfaceId = 1;
 
-function logResult (data, contentsVDOM) {
-  if (typeof console !== "undefined" &&
+function logResult(data, contentsVDOM) {
+  if (
+    typeof console !== "undefined" &&
     console.debug // eslint-disable-line
   ) {
     console.debug("GL.Surface rendered with", data, contentsVDOM); // eslint-disable-line no-console
@@ -28,34 +26,33 @@ module.exports = (
   renderVcontent,
   renderVGL,
   getPixelRatio,
-  getGLCanvas = glSurface => glSurface.refs.canvas,
+  getGLCanvas = glSurface => glSurface.refs.canvas
 ) => {
-
   class GLSurface extends Component {
-    constructor (props, context) {
+    constructor(props, context) {
       super(props, context);
       this._renderId = 0;
-      this._id = _glSurfaceId ++;
+      this._id = _glSurfaceId++;
     }
 
-    componentWillMount () {
+    componentWillMount() {
       Shaders._onSurfaceWillMount(this._id);
       this._build(this.props);
       this._attach();
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
       this._renderId = 0;
       Shaders._onSurfaceWillUnmount(this._id);
       this._dataAnimated && this._dataAnimated.__detach();
     }
 
-    componentWillReceiveProps (nextProps) {
+    componentWillReceiveProps(nextProps) {
       this._build(nextProps);
       this._attach();
     }
 
-    _build (props) {
+    _build(props) {
       const id = this._id;
       const renderId = ++this._renderId;
       const {
@@ -67,13 +64,15 @@ module.exports = (
         preload
       } = props;
 
-      invariant(children, "GL.Surface must have in children a GL.Node or a GL Component");
+      invariant(
+        children,
+        "GL.Surface must have in children a GL.Node or a GL Component"
+      );
 
       const decorateOnShaderCompile = onShaderCompile =>
-      onShaderCompile && // only decorated if onShaderCompile is defined
-      ((error, result) =>
-        renderId === this._renderId && // it's outdated. skip the callback call
-        onShaderCompile(error, result)); // it's current. propagate the call
+        onShaderCompile && // only decorated if onShaderCompile is defined
+        ((error, result) =>
+          renderId === this._renderId && onShaderCompile(error, result)); // it's outdated. skip the callback call // it's current. propagate the call
 
       const pixelRatio = pixelRatioProps || getPixelRatio(props);
 
@@ -91,31 +90,34 @@ module.exports = (
           {...surfaceContext}
           uniforms={{ t: children }}
         />,
-        surfaceContext);
+        surfaceContext
+      );
 
-      invariant(glNode && glNode.childGLNode, "GL.Surface must have in children a GL.Node or a GL Component");
+      invariant(
+        glNode && glNode.childGLNode,
+        "GL.Surface must have in children a GL.Node or a GL Component"
+      );
 
       const { via, childGLNode, context } = glNode;
 
       let resolved;
       try {
         Shaders._beforeSurfaceBuild(id);
-        resolved =
-          resolve(
-            fill(
-              build(
-                childGLNode,
-                context,
-                preload,
-                via,
-                id,
-                decorateOnShaderCompile
-              )));
-      }
-      catch (e) {
+        resolved = resolve(
+          fill(
+            build(
+              childGLNode,
+              context,
+              preload,
+              via,
+              id,
+              decorateOnShaderCompile
+            )
+          )
+        );
+      } catch (e) {
         throw e;
-      }
-      finally {
+      } finally {
         Shaders._afterSurfaceBuild(id);
       }
 
@@ -125,7 +127,7 @@ module.exports = (
       if (debug) logResult(resolved.data, resolved.contentsVDOM);
     }
 
-    _attach () {
+    _attach() {
       const oldDataAnimated = this._dataAnimated;
       const callback = () => {
         const canvas = this.getGLCanvas();
@@ -133,26 +135,26 @@ module.exports = (
         if (canvas.setNativeProps) {
           const data = this._dataAnimated.__getValue();
           canvas.setNativeProps({ data });
-        }
-        else {
+        } else {
           this.forceUpdate();
         }
       };
-      this._dataAnimated = new AnimatedData(
-        this._resolved.data,
-        callback);
+      this._dataAnimated = new AnimatedData(this._resolved.data, callback);
 
       oldDataAnimated && oldDataAnimated.__detach();
     }
 
-    getGLCanvas () {
+    getGLCanvas() {
       return getGLCanvas(this);
     }
 
-    captureFrame () {
+    captureFrame() {
       const c = this.getGLCanvas();
       invariant(c, "c is '%s'. Is the component unmounted?", c);
-      invariant(c.captureFrame, "captureFrame() should be implemented by GLCanvas");
+      invariant(
+        c.captureFrame,
+        "captureFrame() should be implemented by GLCanvas"
+      );
       return c.captureFrame.apply(c, arguments);
     }
 
@@ -163,7 +165,9 @@ module.exports = (
       const pixelRatio = this._pixelRatio;
       const props = this.props;
       const {
-        children, debug, preload, // eslint-disable-line no-unused-vars
+        children,
+        debug,
+        preload, // eslint-disable-line no-unused-vars
         style,
         width,
         height,
@@ -177,17 +181,35 @@ module.exports = (
         const withoutKeys = contentsVDOM.filter(c => !c.key);
         if (withoutKeys.length > 0) {
           console.warn(
-`gl-react: To avoid potential remounting, please define a \`key\` prop on your contents:
+            `gl-react: To avoid potential remounting, please define a \`key\` prop on your contents:
 
-${withoutKeys.map(c => "<"+(c && c.type && (c.type.name || c.type.displayName || "unknown") || c)+" key=??? ... />").join("\n")}
-`);
+${withoutKeys
+              .map(
+                c =>
+                  "<" +
+                  ((c &&
+                    c.type &&
+                    (c.type.name || c.type.displayName || "unknown")) ||
+                    c) +
+                  " key=??? ... />"
+              )
+              .join("\n")}
+`
+          );
         }
       }
 
       return renderVcontainer(
         { width, height, style, visibleContent, eventsThrough },
         contentsVDOM.map((vdom, i) =>
-          renderVcontent(data.width, data.height, vdom.key || i, runtime.decorateVDOMContent(vdom), { visibleContent })),
+          renderVcontent(
+            data.width,
+            data.height,
+            vdom.key || i,
+            runtime.decorateVDOMContent(vdom),
+            { visibleContent }
+          )
+        ),
         renderVGL({
           ...restProps, // eslint-disable-line no-undef
           style: { backgroundColor },

@@ -3,27 +3,31 @@ const isAnimated = require("./isAnimated");
 // At the moment, need to dup some things from RN Animated
 
 class Animated {
-  __attach () {}
-  __detach () {}
-  __getValue () {}
-  __getAnimatedValue () { return this.__getValue(); }
-  __addChild () {}
-  __removeChild () {}
-  __getChildren () { return []; }
+  __attach() {}
+  __detach() {}
+  __getValue() {}
+  __getAnimatedValue() {
+    return this.__getValue();
+  }
+  __addChild() {}
+  __removeChild() {}
+  __getChildren() {
+    return [];
+  }
 }
 
 class AnimatedWithChildren extends Animated {
-  constructor () {
+  constructor() {
     super();
     this._children = [];
   }
-  __addChild (child) {
+  __addChild(child) {
     if (this._children.length === 0) {
       this.__attach();
     }
     this._children.push(child);
   }
-  __removeChild (child) {
+  __removeChild(child) {
     var index = this._children.indexOf(child);
     if (index === -1) {
       console.warn("Trying to remove a child that doesn't exist");
@@ -34,14 +38,14 @@ class AnimatedWithChildren extends Animated {
       this.__detach();
     }
   }
-  __getChildren () {
+  __getChildren() {
     return this._children;
   }
 }
 
 // Animated over the GL Data uniforms object
 class AnimatedUniforms extends AnimatedWithChildren {
-  constructor (uniforms) {
+  constructor(uniforms) {
     super();
     this._uniforms = uniforms;
     this.__attach();
@@ -59,11 +63,9 @@ class AnimatedUniforms extends AnimatedWithChildren {
           arr[i] = isAnimated(v) ? v.__getValue() : v;
         }
         u[key] = arr;
-      }
-      else if (isAnimated(value)) {
+      } else if (isAnimated(value)) {
         u[key] = value.__getValue();
-      }
-      else {
+      } else {
         u[key] = value;
       }
     }
@@ -81,8 +83,7 @@ class AnimatedUniforms extends AnimatedWithChildren {
             v.__addChild(this);
           }
         }
-      }
-      else if (isAnimated(value)) {
+      } else if (isAnimated(value)) {
         value.__addChild(this);
       }
     }
@@ -99,8 +100,7 @@ class AnimatedUniforms extends AnimatedWithChildren {
             v.__removeChild(this);
           }
         }
-      }
-      else if (isAnimated(value)) {
+      } else if (isAnimated(value)) {
         value.__removeChild(this);
       }
     }
@@ -109,7 +109,7 @@ class AnimatedUniforms extends AnimatedWithChildren {
 
 // Animated over a GL Data
 class AnimatedData extends AnimatedWithChildren {
-  constructor (data, callback) {
+  constructor(data, callback) {
     super();
     this._data = {
       ...data,
@@ -122,7 +122,14 @@ class AnimatedData extends AnimatedWithChildren {
   }
 
   __getValue() {
-    const { ...data, contextChildren, width, height, children, uniforms } = this._data;
+    const {
+      contextChildren,
+      width,
+      height,
+      children,
+      uniforms,
+      ...data
+    } = this._data;
     data.width = isAnimated(width) ? width.__getValue() : width;
     data.height = isAnimated(height) ? height.__getValue() : height;
     data.contextChildren = contextChildren.map(c => c.__getValue());

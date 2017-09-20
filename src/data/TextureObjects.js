@@ -1,21 +1,20 @@
-
-function Content (id) {
+function Content(id) {
   return { type: "content", id };
 }
 
-function NDArray (ndarray) {
+function NDArray(ndarray) {
   return { type: "ndarray", ndarray };
 }
 
-function URI (obj) {
+function URI(obj) {
   return { type: "uri", ...obj };
 }
 
-function Framebuffer (id) {
+function Framebuffer(id) {
   return { type: "fbo", id };
 }
 
-function withOpts (obj, opts) {
+function withOpts(obj, opts) {
   return { ...obj, opts };
 }
 

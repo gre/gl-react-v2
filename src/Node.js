@@ -3,7 +3,7 @@ const { Component, PropTypes } = React;
 const invariant = require("invariant");
 
 class Node extends Component {
-  render () {
+  render() {
     invariant(
       false,
       "GL.Node elements can only be used as children of GL.Surface / GL.Node and should not be rendered"

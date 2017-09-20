@@ -11,5 +11,5 @@ module.exports = {
   Node,
   Shaders,
   Uniform,
-  runtime,
+  runtime
 };

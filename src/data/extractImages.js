@@ -1,12 +1,14 @@
-function extractImages (uniforms) {
+function extractImages(uniforms) {
   const images = [];
   for (let u in uniforms) {
     let value = uniforms[u];
-    if (value &&
+    if (
+      value &&
       typeof value === "object" &&
       value.type === "uri" &&
       value.uri &&
-      typeof value.uri === "string") {
+      typeof value.uri === "string"
+    ) {
       images.push(value);
     }
   }
